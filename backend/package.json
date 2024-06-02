@@ -19,7 +19,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.1",
     "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.11.5",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -29,7 +32,7 @@
     "@types/node": "^20.13.0",
     "@types/passport": "^1.0.16",
     "@types/passport-jwt": "^4.0.1",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.7.0",
     "typescript": "^5.4.5"
   }
 }
