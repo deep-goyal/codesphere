@@ -1,14 +1,25 @@
+import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
+import { AppDataSource } from "./config/data-source";
 
 //load env vars
 dotenv.config();
 
 //init express framework
 const app = express();
+
+//connect db
+AppDataSource.initialize()
+  .then(() => {
+    console.log("PostgreSQL connected");
+  })
+  .catch((err) => {
+    console.log("Error connecting to the database in index.ts", err);
+  });
 
 //init middleware
 app.use(cors()); //cross origin resource sharing
