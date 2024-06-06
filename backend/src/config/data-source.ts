@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "../models/User";
-
 import { config } from "dotenv";
+
 config();
 
 export const AppDataSource = new DataSource({
