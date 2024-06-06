@@ -5,7 +5,8 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import { AppDataSource } from "./config/data-source";
-import passport from "passport";
+import passport from "./config/passport";
+import protectedRoutes from "./routes/protected";
 
 //load env vars
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(passport.initialize()); //to authenticate the routes
 
 //auth routes
 app.use("/api/auth", authRoutes);
+app.use("/api", protectedRoutes);
 
 //root path
 app.get("/", (req, res) => {
