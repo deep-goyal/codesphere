@@ -2,23 +2,34 @@ import express from "express";
 import { AppDataSource } from "../config/data-source";
 import { User } from "../models/User";
 import jwt from "jsonwebtoken";
+import { body, validationResult } from "express-validator";
 
 //init router
 const router = express.Router();
 
 //register route
-router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    const userRepository = AppDataSource.getRepository(User);
-    const user = userRepository.create({ username, email, password });
+router.post(
+  "/register",
+  body("email").isEmail(),
+  body("password").isLength({ min: 6 }),
+  async (req, res) => {
+    const { username, email, password } = req.body;
 
-    await userRepository.save(user);
-    res.status(201).json({ message: "User registered successfully." });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const userRepository = AppDataSource.getRepository(User);
+      const user = userRepository.create({ username, email, password });
+
+      await userRepository.save(user);
+      res.status(201).json({ message: "User registered successfully." });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
   }
-});
+);
 
 //login route
 router.post("/login", async (req, res) => {
