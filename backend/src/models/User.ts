@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert } from "typeorm";
 import bcrypt from "bcryptjs";
 
+//user schema
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -14,6 +15,13 @@ export class User {
 
   @Column()
   password!: string;
+
+  @Column({ nullable: true })
+  bio?: string;
+
+  //either a URL or a base64-encoded avatar
+  @Column({ nullable: true })
+  avatarUrl?: string;
 
   @BeforeInsert()
   async hashPassword() {
