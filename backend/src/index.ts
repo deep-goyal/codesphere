@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth";
 import { AppDataSource } from "./config/data-source";
 import passport from "./config/passport";
 import protectedRoutes from "./routes/protected";
+import userRoutes from "./routes/user";
 
 //load env vars
 dotenv.config();
@@ -31,6 +32,7 @@ app.use(passport.initialize()); //to authenticate the routes
 //auth routes
 app.use("/api/auth", authRoutes);
 app.use("/api", protectedRoutes);
+app.use("/api/user", userRoutes);
 
 //root path
 app.get("/", (req, res) => {
