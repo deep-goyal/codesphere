@@ -39,10 +39,17 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-//start server
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+function startServer() {
+  const PORT = process.env.PORT || 5001;
+  const server = app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
 
-export { app };
+//start server
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}
+
+//export the server for testing
+export { app, startServer };
