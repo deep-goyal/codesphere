@@ -50,12 +50,16 @@ passport.use(
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       const userRepository = AppDataSource.getRepository(User);
       try {
+        // try extracting user by github id
         let user = await userRepository.findOneBy({ githubId: profile.id });
         if (!user) {
+          //extract user info from github profile
           user = userRepository.create({
             githubId: profile.id,
             username: profile.username,
             email: profile.emails?.[0].value,
+            bio: profile._json.bio,
+            avatarUrl: profile._json.avatar_url,
           });
           await userRepository.save(user);
         }

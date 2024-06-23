@@ -3,6 +3,7 @@ import { AppDataSource } from "../config/data-source";
 import { User } from "../models/User";
 import jwt from "jsonwebtoken";
 import { body, validationResult } from "express-validator";
+import passport from "passport";
 
 //init router
 const router = express.Router();
@@ -68,5 +69,19 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+//github auth route
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+
+router.get(
+  "/github/callback",
+  passport.authenticate("github", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("/");
+  }
+);
 
 export default router;
