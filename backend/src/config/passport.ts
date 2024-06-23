@@ -1,5 +1,6 @@
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { Strategy as GitHubStrategy } from "passport-github2";
 import { AppDataSource } from "./data-source";
 import { User } from "../models/User";
 import { config } from "dotenv";
@@ -13,7 +14,7 @@ const opts = {
   secretOrKey: process.env.JWT_SECRET || "jwt secret to be revisited later on.", //secret
 };
 
-//protect the token route
+// * JWT strategy- for users without github account
 passport.use(
   new JwtStrategy(opts, async (jwtPayload, done) => {
     //jwt strategy
@@ -35,5 +36,49 @@ passport.use(
     }
   })
 );
+
+const githubOpts = {
+  clientID: process.env.GITHUB_CLIENT_ID!,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+  callbackURL: "http://localhost:5001/api/auth/github/callback",
+};
+
+// * github oauth strategy
+passport.use(
+  new GitHubStrategy(
+    githubOpts,
+    async (accessToken: any, refreshToken: any, profile: any, done: any) => {
+      const userRepository = AppDataSource.getRepository(User);
+      try {
+        let user = await userRepository.findOneBy({ githubId: profile.id });
+        if (!user) {
+          user = userRepository.create({
+            githubId: profile.id,
+            username: profile.username,
+            email: profile.emails?.[0].value,
+          });
+          await userRepository.save(user);
+        }
+        done(null, user);
+      } catch (err) {
+        done(err, null);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id: number, done) => {
+  const userRepository = AppDataSource.getRepository(User);
+  try {
+    const user = await userRepository.findOneBy({ id });
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
 
 export default passport;
