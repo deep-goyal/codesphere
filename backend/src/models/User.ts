@@ -26,12 +26,12 @@ export class User {
   username!: string;
 
   //email
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   email!: string;
 
   //hashed password
-  @Column()
-  password!: string;
+  @Column({ nullable: true })
+  password?: string;
 
   //user bio --profile
   @Column({ nullable: true })
@@ -41,25 +41,33 @@ export class User {
   @Column({ nullable: true })
   avatarUrl?: string;
 
-  //repos
+  //array of repos shared
   @OneToMany(() => Repository, (repo) => repo.user)
   repositories!: Repository[];
 
-  //comments
+  //comments array
   @OneToMany(() => Comment, (comment) => comment.user)
   comments!: Comment[];
 
+  //likes array
   @OneToMany(() => Like, (like) => like.user)
   likes!: Like[];
 
   //function to hash password before inserting into the table
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+    //ensure password is not undefined
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
   }
 
   //function to compare hashed password
   async comparePassword(password: string) {
+    //handle undefined case
+    if (!this.password) {
+      throw new Error("password is not set");
+    }
     return await bcrypt.compare(password, this.password);
   }
 }

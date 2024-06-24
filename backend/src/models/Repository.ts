@@ -16,18 +16,23 @@ export class Repository {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  //users can have multiple repos
   @ManyToOne(() => User, (user) => user.repositories, { onDelete: "CASCADE" })
   user!: User;
 
+  //user's thoughts on repo
   @Column("text")
   thoughts!: string;
 
+  //created at date
   @CreateDateColumn()
   createdAt!: Date;
 
+  //array of comments
   @OneToMany(() => Comment, (comment) => comment.repository)
   comments!: Comment[];
 
+  //array of likes
   @OneToMany(() => Like, (like) => like.repository)
   likes!: Like[];
 }
