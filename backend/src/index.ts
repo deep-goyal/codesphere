@@ -8,6 +8,7 @@ import { AppDataSource } from "./config/data-source";
 import passport from "./config/passport";
 import protectedRoutes from "./routes/protected";
 import userRoutes from "./routes/user";
+import session = require("express-session");
 
 //load env vars
 dotenv.config();
@@ -28,6 +29,15 @@ AppDataSource.initialize()
 app.use(cors()); //cross origin resource sharing
 app.use(bodyParser.json()); //to parse jsons
 app.use(passport.initialize()); //to authenticate the routes
+app.use(
+  session({
+    //to create sessions
+    secret: process.env.SESSION_SECRET || "secret",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.session());
 
 //auth routes
 app.use("/api/auth", authRoutes);
