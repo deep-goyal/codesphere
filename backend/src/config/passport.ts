@@ -48,8 +48,8 @@ passport.use(
   new GitHubStrategy(
     githubOpts,
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
-      const userRepository = AppDataSource.getRepository(User);
       try {
+        const userRepository = AppDataSource.getRepository(User);
         // try extracting user by github id
         let user = await userRepository.findOneBy({ githubId: profile.id });
         if (!user) {
@@ -63,9 +63,9 @@ passport.use(
           });
           await userRepository.save(user);
         }
-        done(null, user);
+        return done(null, user);
       } catch (err) {
-        done(err, null);
+        return done(err, null);
       }
     }
   )
@@ -76,8 +76,8 @@ passport.serializeUser((user: any, done) => {
 });
 
 passport.deserializeUser(async (id: number, done) => {
-  const userRepository = AppDataSource.getRepository(User);
   try {
+    const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneBy({ id });
     done(null, user);
   } catch (err) {
