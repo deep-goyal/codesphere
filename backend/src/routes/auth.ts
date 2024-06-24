@@ -76,11 +76,27 @@ router.get(
   passport.authenticate("github", { scope: ["user:email"] })
 );
 
+//github callback post auth
 router.get(
   "/github/callback",
-  passport.authenticate("github", { failureRedirect: "/" }),
+  passport.authenticate("github", { failureRedirect: "/login" }),
   (req, res) => {
-    res.redirect("/");
+    //get the user typecasted to User model
+    const user = req.user as User;
+
+    //define payload
+    const payload = { id: user.id, username: user.username };
+
+    //sign token
+    const token = jwt.sign(
+      payload,
+      process.env.JWT_SECRET ||
+        "jwt-secret thing need to come back gahd damn it",
+      { expiresIn: "1h" }
+    );
+
+    //send token with response code 200
+    res.status(200).json({ token });
   }
 );
 
