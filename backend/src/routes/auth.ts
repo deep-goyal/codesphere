@@ -80,7 +80,7 @@ router.get(
 router.get(
   "/github/callback",
   passport.authenticate("github", { failureRedirect: "/login" }),
-  (req, res) => {
+  async (req, res) => {
     //get the user typecasted to User model
     const user = req.user as User;
 
