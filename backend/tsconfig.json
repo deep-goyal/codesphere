@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
     "module": "commonjs",
+    "target": "es6",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "baseUrl": "./",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "src/tests"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

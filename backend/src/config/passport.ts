@@ -1,72 +1,47 @@
 import passport from "passport";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import { Strategy as GitHubStrategy } from "passport-github2";
+import {
+  Strategy as GitHubStrategy,
+  Profile as GitHubProfile,
+} from "passport-github2";
 import { AppDataSource } from "./data-source";
 import { User } from "../models/User";
-import { config } from "dotenv";
+import dotenv from "dotenv";
 
-config(); //dot env vars for jwt secret
+dotenv.config();
 
-//define options
-const opts = {
-  //extract jwt from the request
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET || "jwt secret to be revisited later on.", //secret
-};
+interface ExtendedGitHubProfile extends GitHubProfile {
+  _json: {
+    avatar_url: string;
+    bio: string;
+  };
+}
 
-// * JWT strategy- for users without github account
-passport.use(
-  new JwtStrategy(opts, async (jwtPayload, done) => {
-    //jwt strategy
-    try {
-      //fetch db
-      const userRepository = AppDataSource.getRepository(User);
-      //find the user
-      const user = await userRepository.findOneBy({ id: jwtPayload.id });
-      if (user) {
-        //call the done callback function if found
-        return done(null, user);
-      } else {
-        //done callback with false if not found
-        return done(null, false);
-      }
-    } catch (error) {
-      //done callback with error
-      return done(error, false);
-    }
-  })
-);
-
-const githubOpts = {
-  clientID: process.env.GITHUB_CLIENT_ID!,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-  callbackURL: "http://localhost:5001/api/auth/github/callback",
-};
-
-// * github oauth strategy
 passport.use(
   new GitHubStrategy(
-    githubOpts,
-    async (accessToken: any, refreshToken: any, profile: any, done: any) => {
-      try {
-        const userRepository = AppDataSource.getRepository(User);
-        // try extracting user by github id
-        let user = await userRepository.findOneBy({ githubId: profile.id });
-        if (!user) {
-          //extract user info from github profile
-          user = userRepository.create({
-            githubId: profile.id,
-            username: profile.username,
-            email: profile.emails?.[0].value,
-            bio: profile._json.bio,
-            avatarUrl: profile._json.avatar_url,
-          });
-          await userRepository.save(user);
-        }
-        return done(null, user);
-      } catch (err) {
-        return done(err, null);
+    {
+      clientID: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      callbackURL: "http://localhost:5001/api/auth/github/callback",
+    },
+    async (
+      accessToken: string,
+      refreshToken: string,
+      profile: ExtendedGitHubProfile,
+      done: Function
+    ) => {
+      const userRepository = AppDataSource.getRepository(User);
+      let user = await userRepository.findOneBy({ githubId: profile.id });
+
+      if (!user) {
+        user = userRepository.create({
+          githubId: profile.id,
+          username: profile.username,
+          email: profile.emails?.[0].value,
+          avatarUrl: profile._json.avatar_url,
+        });
+        await userRepository.save(user);
       }
+      return done(null, user);
     }
   )
 );
@@ -76,13 +51,9 @@ passport.serializeUser((user: any, done) => {
 });
 
 passport.deserializeUser(async (id: number, done) => {
-  try {
-    const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOneBy({ id });
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
+  const userRepository = AppDataSource.getRepository(User);
+  const user = await userRepository.findOneBy({ id });
+  done(null, user);
 });
 
 export default passport;
