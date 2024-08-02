@@ -6,11 +6,15 @@ export declare class MigrationCreateCommand implements yargs.CommandModule {
     command: string;
     describe: string;
     builder(args: yargs.Argv): yargs.Argv<{
+        path: string;
+    } & {
         o: boolean;
     } & {
         t: number | boolean;
     }>;
-    handler(args: yargs.Arguments): Promise<void>;
+    handler(args: yargs.Arguments<any & {
+        path: string;
+    }>): Promise<void>;
     /**
      * Gets contents of the migration file.
      */

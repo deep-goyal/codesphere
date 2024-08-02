@@ -6,6 +6,8 @@ export declare class MigrationGenerateCommand implements yargs.CommandModule {
     command: string;
     describe: string;
     builder(args: yargs.Argv): yargs.Argv<{
+        path: string;
+    } & {
         dataSource: string;
     } & {
         p: boolean;
@@ -18,7 +20,9 @@ export declare class MigrationGenerateCommand implements yargs.CommandModule {
     } & {
         t: number | boolean;
     }>;
-    handler(args: yargs.Arguments): Promise<void>;
+    handler(args: yargs.Arguments<any & {
+        path: string;
+    }>): Promise<void>;
     /**
      * Formats query parameters for migration queries if parameters actually exist
      */

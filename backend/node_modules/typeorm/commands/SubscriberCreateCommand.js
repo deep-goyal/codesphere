@@ -14,6 +14,13 @@ class SubscriberCreateCommand {
         this.command = "subscriber:create <path>";
         this.describe = "Generates a new subscriber.";
     }
+    builder(args) {
+        return args.positional("path", {
+            type: "string",
+            describe: "Path of the subscriber file",
+            demandOption: true,
+        });
+    }
     async handler(args) {
         try {
             const fullPath = args.path.startsWith("/")

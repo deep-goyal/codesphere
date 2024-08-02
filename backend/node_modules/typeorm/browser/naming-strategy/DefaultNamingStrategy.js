@@ -136,9 +136,6 @@ export class DefaultNamingStrategy {
     prefixTableName(prefix, tableName) {
         return prefix + tableName;
     }
-    eagerJoinRelationAlias(alias, propertyPath) {
-        return alias + "_" + propertyPath.replace(".", "_");
-    }
 }
 
 //# sourceMappingURL=DefaultNamingStrategy.js.map

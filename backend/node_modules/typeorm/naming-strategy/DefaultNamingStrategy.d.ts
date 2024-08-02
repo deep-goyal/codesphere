@@ -40,7 +40,6 @@ export declare class DefaultNamingStrategy implements NamingStrategyInterface {
      * Note that table name comes here already normalized by #tableName method.
      */
     prefixTableName(prefix: string, tableName: string): string;
-    eagerJoinRelationAlias(alias: string, propertyPath: string): string;
     nestedSetColumnNames: {
         left: string;
         right: string;
