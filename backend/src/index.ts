@@ -4,6 +4,7 @@ import cors from "cors";
 import session from "express-session";
 import passport from "./config/passport";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import { AppDataSource } from "./config/data-source";
 import authRoutes from "./routes/auth";
 import postRoutes from "./routes/post";
@@ -20,13 +21,28 @@ AppDataSource.initialize()
     console.error("Error connecting to the database", err);
   });
 
-app.use(cors());
+app.use(helmet());
+
+app.use(
+  cors({
+    origin: "http://localhost:5001",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      sameSite: "lax",
+    },
   })
 );
 
