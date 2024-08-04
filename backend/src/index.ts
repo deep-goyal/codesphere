@@ -2,7 +2,6 @@ import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 import session from "express-session";
-import passport from "./config/passport";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import { AppDataSource } from "./config/data-source";
@@ -22,7 +21,6 @@ AppDataSource.initialize()
   });
 
 app.use(helmet());
-
 app.use(
   cors({
     origin: "http://localhost:5001",
@@ -33,21 +31,6 @@ app.use(
 );
 
 app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "secret",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      sameSite: "lax",
-    },
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);

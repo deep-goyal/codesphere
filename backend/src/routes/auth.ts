@@ -1,31 +1,49 @@
 import express from "express";
-import passport from "passport";
+import { AppDataSource } from "../config/data-source";
+import { User } from "../models/User";
 
 const router = express.Router();
 
-// GitHub OAuth login
-router.get(
-  "/github",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
+// Login or Register with Name
+router.post("/login", async (req, res) => {
+  const { name } = req.body;
 
-// GitHub OAuth callback
-router.get(
-  "/github/callback",
-  passport.authenticate("github", { failureRedirect: "/" }),
-  (req, res) => {
-    res.redirect("/"); // Redirect to the home page after successful login
+  if (!name) {
+    return res.status(400).json({ message: "Name is required" });
   }
-);
 
-// Logout
-router.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.redirect("/");
-  });
+  const userRepository = AppDataSource.getRepository(User);
+
+  // Check if user exists
+  let user = await userRepository.findOneBy({ name });
+
+  if (!user) {
+    // Create a new user
+    user = userRepository.create({ name });
+    await userRepository.save(user);
+  }
+
+  return res.status(200).json({ token: user.token });
+});
+
+// Login with Token
+router.post("/token-login", async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ message: "Token is required" });
+  }
+
+  const userRepository = AppDataSource.getRepository(User);
+
+  // Check if user exists with the given token
+  const user = await userRepository.findOneBy({ token });
+
+  if (!user) {
+    return res.status(404).json({ message: "Invalid token" });
+  }
+
+  return res.status(200).json({ message: "Logged in successfully", user });
 });
 
 export default router;

@@ -1,5 +1,11 @@
-import "reflect-metadata";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BeforeInsert,
+  OneToMany,
+} from "typeorm";
+import { v4 as uuidv4 } from "uuid";
 import { Post } from "./Post";
 
 @Entity()
@@ -8,17 +14,16 @@ export class User {
   id!: number;
 
   @Column({ unique: true })
-  githubId!: string;
+  name!: string;
 
   @Column({ unique: true })
-  username!: string;
-
-  @Column({ unique: true, nullable: true })
-  email!: string;
-
-  @Column({ nullable: true })
-  avatarUrl?: string;
+  token!: string;
 
   @OneToMany(() => Post, (post) => post.user)
   posts!: Post[];
+
+  @BeforeInsert()
+  generateToken() {
+    this.token = uuidv4();
+  }
 }
